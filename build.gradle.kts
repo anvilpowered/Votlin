@@ -42,7 +42,7 @@ dependencies {
 }
 
 tasks.shadowJar {
-    archiveBaseName.set("${project.name}-$velocityVersion-$kotlinVersion")
+    archiveBaseName.set("${project.name}")
     configurations = listOf(project.configurations.shadow.get())
     archiveClassifier.set("")
 }
