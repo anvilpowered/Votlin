@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+  `java-library`
   id("com.github.johnrengelman.shadow")
   kotlin("jvm")
   kotlin("kapt")
@@ -21,7 +22,7 @@ repositories {
 
 dependencies {
   val velocity = create("com.velocitypowered:velocity-api:$velocityVersion")
-  api(velocity)
+  compileOnlyApi(velocity)
   kapt(velocity)
   api(kotlin("stdlib-jdk8"))
   api(kotlin("reflect"))
