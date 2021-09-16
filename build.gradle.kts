@@ -1,70 +1,55 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id("com.github.johnrengelman.shadow") version "5.1.0"
-    kotlin("jvm") version "1.3.40"
-    kotlin("kapt") version "1.3.40"
+  id("com.github.johnrengelman.shadow")
+  kotlin("jvm")
+  kotlin("kapt")
 }
 
-val velocityVersion: String by project
 val kotlinVersion: String by project
-val pluginGroup: String by project
-val pluginVersion: String by project
+val kotlinxCoroutinesVersion: String by project
+val kotlinxSerializationVersion: String by project
+val velocityVersion: String by project
 
-group = pluginGroup
-version = pluginVersion
+group = "org.anvilpowered"
+version = kotlinVersion
 
 repositories {
-    mavenCentral()
-    jcenter()
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-    }
-    maven {
-        url = uri("https://repo.velocitypowered.com/snapshots/")
-    }
+  mavenCentral()
+  maven("https://nexus.velocitypowered.com/repository/maven-public/")
 }
 
 dependencies {
-    val velocity = create("com.velocitypowered:velocity-api:$velocityVersion")
-    api(velocity)
-    kapt(velocity)
-    val stdlib = create(kotlin("stdlib-jdk8"))
-    api(stdlib)
-    shadow(stdlib)
-    val reflect = create(kotlin("reflect"))
-    api(reflect)
-    shadow(reflect)
-    val coroutines = create("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.0-M2")
-    api(coroutines)
-    shadow(coroutines)
-    val serialization = create("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.1")
-    api(serialization)
-    shadow(serialization)
+  val velocity = create("com.velocitypowered:velocity-api:$velocityVersion")
+  api(velocity)
+  kapt(velocity)
+  api(kotlin("stdlib-jdk8"))
+  api(kotlin("reflect"))
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:$kotlinxSerializationVersion")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
 }
-
-tasks.shadowJar {
-    archiveBaseName.set("${project.name}")
-    configurations = listOf(project.configurations.shadow.get())
-    archiveClassifier.set("")
-}
-
-tasks.jar {
+tasks {
+  withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
+  }
+  withType<JavaCompile> {
+    options.encoding = "UTF-8"
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
+  }
+  jar {
     enabled = false
-}
-
-tasks.build {
-    dependsOn(tasks.shadowJar.get())
-}
-
-tasks.compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+  }
+  build {
+    dependsOn(shadowJar)
+  }
+  shadowJar {
+    archiveFileName.set("Votlin-${project.version}.jar")
+  }
 }
 
 kapt {
-    includeCompileClasspath = false
-}
-
-artifacts {
-    archives(tasks.shadowJar.get())
+  includeCompileClasspath = false
 }
